@@ -41,11 +41,14 @@
         c = d3.scale.linear()
               .domain([0,1])
               .range(["hsl(250, 50%, 50%)", "hsl(350, 100%, 50%)"])
-              .interpolate(d3.interpolateHsl);
+              .interpolate(d3.interpolateHsl),
+        y2 = d3.scale.linear()
+               .domain([0,1])
+               .range([h/2 - 20, h/2 + 20]);
 
     vis.selectAll("circle")
             .data(data)
-            .enter().append("svg:circle")
+            .enter().append("circle")
             .attr("cx", function(d) { return x(d.x); })
             .attr("cy", function(d) { return y(d.y); })
             .attr("stroke-width", "none")
@@ -60,14 +63,6 @@
                         .duration(2000)
                         .ease("elastic", 10, .3);
             });
-
-    var y2 = d3.scale.linear()
-               .domain([0,1])
-               .range([h/2 - 20, h/2 + 20]);
-
-    var del = d3.scale.linear()
-               .domain([0,1])
-               .range([0,1]);
 
     d3.selectAll("circle").transition()
             .attr("cx", function() { return x(Math.random()); })
