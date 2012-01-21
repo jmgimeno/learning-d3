@@ -54,10 +54,10 @@
                     return "translate(30," + (topMargin + i * groupHeight) + ")"; })
                 .each(drawLine);
 
-    function drawLine(p) {
+    function drawLine(interpolation) {
         d3.select(this)
           .append("path")
-          .attr("d", getLine(p)(data))
+          .attr("d", getLine(interpolation)(data))
           .attr("fill", "none")
           .attr("stroke", "steelblue")
           .attr("stroke-width", 3);
