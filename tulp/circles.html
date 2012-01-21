@@ -68,7 +68,7 @@
             .attr("cx", function() { return x(Math.random()); })
             .attr("cy", function() { return y2(Math.random()); })
             .attr("visibility", "visible")
-            .delay(function(d,i) { return i * del(Math.random()); })
+            .delay(function(d,i) { return i * Math.random(); })
             .duration(1000)
             .ease("elastic", 10, .45);
 </script>
