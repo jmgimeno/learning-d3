@@ -35,7 +35,7 @@
         w = 400,
         h = 200,
         margin = 20,
-        x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
+        x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin]),
         y = d3.scale.linear().domain([0, d3.max(data)]).range([0 - margin, margin - h]);
 
     var vis = d3.select("body")
