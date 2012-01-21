@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<!-- http://www.janwillemtulp.com/2011/03/23/tutorial-line-interpolations-in-d3/ -->
+
+<head>
+    <title>Line Interpolation</title>
+
+    <script type="text/javascript" src="../d3/d3.js"></script>
+
+    <style type="text/css">
+
+    </style>
+
+</head>
+
+<body>
+<script type="text/javascript">
+
+    var x = d3.scale.linear().domain([0,10]).range([0,400]),
+        y = d3.scale.linear().domain([0,1]).range([0,50]),
+        groupHeight = 70,
+        topMargin = 30;
+
+    var data = d3.range(10).map(Math.random);
+
+    var interpolations = [
+        "linear",
+        "step-before",
+        "step-after",
+        "basis",
+        "basis-closed",
+        "cardinal",
+        "cardinal-closed"];
+
+    function getLine(interpolation) {
+        return d3.svg.line()
+                 .x(function(d,i) { return x(i); })
+                 .y(function(d) { return y(d); })
+                 .interpolate(interpolation);
+    }
+
+    var vis = d3.select("body")
+                .append("svg:svg")
+                .attr("class", "vis")
+                .attr("width", window.width)
+                .attr("height", window.height);
+
+    var lg = vis.selectAll(".lineGroup")
+                .data(interpolations)
+                .enter().append("g")
+                .attr("class", "lineGroup")
+                .attr("transform", function(d,i) {
+                    return "translate(30," + (topMargin + i * groupHeight) + ")"; })
+                .each(drawLine);
+
+    function drawLine(p,j) {
+        d3.select(this)
+          .selectAll(".lineGroup")
+          .data(data)
+          .enter().append("svg:path")
+          .attr("d", getLine(p)(data))
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 3);
+    }
+
+</script>
+</body>
+</html>
