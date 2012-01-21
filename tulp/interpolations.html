@@ -54,11 +54,9 @@
                     return "translate(30," + (topMargin + i * groupHeight) + ")"; })
                 .each(drawLine);
 
-    function drawLine(p,j) {
+    function drawLine(p) {
         d3.select(this)
-          .selectAll(".lineGroup")
-          .data(data)
-          .enter().append("svg:path")
+          .append("path")
           .attr("d", getLine(p)(data))
           .attr("fill", "none")
           .attr("stroke", "steelblue")
