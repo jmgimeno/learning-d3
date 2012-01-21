@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<!-- http://www.janwillemtulp.com/2011/03/22/tutorial-conways-game-of-life-in-d3/ -->
+
+<head>
+    <title>Circles</title>
+
+    <script type="text/javascript" src="../d3/d3.js"></script>
+
+    <style type="text/css">
+
+    </style>
+
+</head>
+
+<body>
+<script type="text/javascript">
+
+    var ccx = 120, // cell count x
+            ccy = 30, // cell count y
+            cw = 5, // cellWidth
+            ch = 5,  // cellHeight
+            del = 100, // delay
+            xs = d3.scale.linear().domain([0,ccx]).range([0,ccx * cw]),
+            ys = d3.scale.linear().domain([0,ccy]).range([0,ccy * ch]),
+            states = [];
+
+    d3.range(ccx).forEach(function(x) {
+        states[x] = [];
+        d3.range(ccy).forEach(function(y) {
+            states[x][y] = Math.random() > .8 ? true : false;
+        });
+    })
+
+    function toGrid(states) {
+        var g = [];
+        for (x = 0; x < ccx; x++) {
+            for (y = 0; y < ccy; y++) {
+                g.push({"x": x, "y": y, "state": states[x][y]});
+            }
+        }
+        return g;
+    }
+
+    var vis = d3.select("body")
+            .append("svg:svg")
+            .attr("class", "vis")
+            .attr("width", window.width)
+            .attr("height", window.height);
+
+    vis.selectAll("rect")
+            .data(function() { return toGrid(states) })
+            .enter().append("svg:rect")
+            .attr("stroke", "none")
+            .attr("fill", function(d) { return d.state ? "green" : "white"; })
+            .attr("x", function(d) { return xs(d.x); })
+            .attr("y", function(d) { return ys(d.y); })
+            .attr("width", cw)
+            .attr("height", ch);
+
+    function createNewGeneration() {
+        var nextGen = [];
+
+        for (x = 0; x < ccx; x++) {
+            nextGen[x] = [];
+            for (y = 0; y < ccy; y++) {
+                var ti = y - 1 < 0 ? ccy - 1 : y - 1; // top index
+                var ri = x + 1 == ccx ? 0 : x + 1; // right index
+                var bi = y + 1 == ccy ? 0 : y + 1; // bottom index
+                var li = x - 1 < 0 ? ccx - 1 : x - 1; // left index
+
+                var thisState = states[x][y];
+                var liveNeighbours = 0;
+                liveNeighbours += states[li][ti] ? 1 : 0;
+                liveNeighbours += states[x][ti] ? 1 : 0;
+                liveNeighbours += states[ri][ti] ? 1 : 0;
+                liveNeighbours += states[li][y] ? 1 : 0;
+                liveNeighbours += states[ri][y] ? 1 : 0;
+                liveNeighbours += states[li][bi] ? 1 : 0;
+                liveNeighbours += states[x][bi] ? 1 : 0;
+                liveNeighbours += states[ri][bi] ? 1 : 0;
+
+                var newState = false;
+
+                if (thisState) {
+                    newState = liveNeighbours == 2 || liveNeighbours == 3 ? true : false;
+                } else {
+                    newState = liveNeighbours == 3 ? true : false;
+                }
+
+                nextGen[x][y] = newState;
+            }
+        }
+
+        return nextGen;
+    }
+
+    function animate() {
+        states = createNewGeneration()
+        d3.selectAll("rect")
+                .data(toGrid(states))
+                .transition()
+                .attr("fill", function(d) { return d.state ? "green" : "white" })
+                .delay(del)
+                .duration(0);
+    }
+
+    d3.timer(animate);
+
+</script>
+</body>
+</html>
