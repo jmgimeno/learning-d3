@@ -5,7 +5,7 @@ var w   = 960 // bl.ocks.org viewport width
     , m   = false // toggle mode on mousedown/mouseup
     , ccx = w/cw // cell count x
     , ccy = h/ch // cell count y
-    , del = 100  // ms between generations
+    , del = 0  // ms between generations
     , xs  = d3.scale.linear().domain([0, ccx]).rangeRound([0, ccx * cw])
     , ys  = d3.scale.linear().domain([0, ccy]).rangeRound([0, ccy * ch])
     , states = []
@@ -57,9 +57,10 @@ function coord(x, y) {
 function animate() {
     d3.selectAll('rect')
         .data(states = createNewGeneration())
-        .classed('life', function(d) { return d; });
+        .transition()
+        .attr('class', function(d) { return d ? 'life' : ''; })
+        .delay(del)
+        .duration(0);
 }
-
-//setInterval(animate, del);
 
 d3.timer(animate);
