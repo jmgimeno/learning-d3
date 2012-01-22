@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<!-- http://bl.ocks.org/917479 -->
+
+<head>
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <title>Line Chart</title>
+    <script type="text/javascript" src="../d3/d3.js"></script>
+    <script type="text/javascript" src="../d3/d3.time.js"></script>
+    <script type="text/javascript" src="line_chart3.js"></script>
+    <script type="text/javascript" src="focus_context3.js"></script>
+    <style type="text/css"> @import url("http://bl.ocks.org/style.css");</style>
+    <style type="text/css">
+        path {
+            stroke-width: 2;
+            fill: none;
+        }
+
+        line {
+            stroke: black;
+        }
+
+        .grids {
+            stroke: #ccc;
+            stroke-width: 1;
+        }
+
+        text {
+            font-family: Arial;
+            font-size: 9pt;
+        }
+
+
+        .oml-lineGraph .graph-area {
+            cursor: crosshair;
+        }
+
+        .oml-lineGraph .select-rect {
+            cursor: hand;
+            fill: #FF8080;
+            fill-opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Focus + Context</h1>
+
+<div id="graph2"></div><p>
+<div id="x_min">x_min: <span>--</span></div>
+<div id="x_max">x_max: <span>--</span></div><p>
+    <button onclick="on_line2_2()">2 Line</button>
+    <button onclick="on_line3_2()">3 Line</button>
+
+    <script type="text/javascript" src="test4.js"></script>
+
+
+</body>
+</html>
