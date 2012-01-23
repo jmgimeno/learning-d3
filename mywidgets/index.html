@@ -34,17 +34,28 @@
     </style>
 </head>
 <body>
+    <div id="selector"></div>
+    <div id="range"></div>
+
     <script type="text/javascript">
+
+        function format(num, digits, decimals) {
+            var str = num.toFixed(decimals);
+            while (str.length < digits+decimals+1) {
+                str = "0" + str;
+            }
+            return str;
+        }
 
         var x = 20,
             y = 20,
             h = 20,
             w = 200;
 
-        var diagram = d3.select("body").append("svg")
+        var diagram = d3.select("#selector").append("svg")
                         .attr("class", "diagram")
-                        .attr("width", x+w+h)
-                        .attr("height", y+2*h);
+                        .attr("width", 400)
+                        .attr("height", 50);
 
         var area = diagram.append("rect")
                           .attr("class", "area")
@@ -57,12 +68,13 @@
             b: 10,
             range: [0, 100],
             callback: function (l, r) {
-                d3.select("#range").text([l, r].join());
+                l = format(l, 3, 3);
+                r = format(r, 3, 3);
+                d3.select("#range").text(l + " " + r);
             }
         });
 
     </script>
 
-    <div id="range"></div>
 </body>
 </html>

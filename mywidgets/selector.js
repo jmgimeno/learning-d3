@@ -48,6 +48,9 @@ function make_selector(parent, x, y, w, opts) {
             selection.attr("width", w + diff);
             callback(x, x + w);
         });
+
+    callback(x, x + w);
+
     return group;
 }
 
@@ -61,6 +64,7 @@ function make_selection(parent, x, y, w, h, callback) {
             callback(newx, newx + neww);
         }
     }
+
     return parent.append("rect")
             .attr("class", "selection")
             .attr("x", x)
