@@ -55,8 +55,9 @@
 
         var selector = make_selector(diagram, x, y, w, {
             b: 10,
+            range: [0, 100],
             callback: function (l, r) {
-                d3.select("#range").text([l,r].join());
+                d3.select("#range").text([l, r].join());
             }
         });
 
