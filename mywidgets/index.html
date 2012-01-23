@@ -49,13 +49,13 @@
 
         var x = 20,
             y = 20,
-            h = 20,
-            w = 200;
+            h = 150,
+            w = 500;
 
         var diagram = d3.select("#selector").append("svg")
                         .attr("class", "diagram")
-                        .attr("width", 400)
-                        .attr("height", 50);
+                        .attr("width", 600)
+                        .attr("height", 200);
 
         var area = diagram.append("rect")
                           .attr("class", "area")
@@ -64,7 +64,7 @@
                           .attr("width", w)
                           .attr("height", h);
 
-        var selector = make_selector(diagram, x, y, w, {
+        var selector = make_selector(diagram, x, y, w, h, {
             b: 10,
             range: [0, 100],
             callback: function (l, r) {

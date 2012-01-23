@@ -1,7 +1,6 @@
-function make_selector(parent, x, y, w, opts) {
+function make_selector(parent, x, y, w, h, opts) {
 
-    var h = opts["h"] || 20;
-    var b = opts["b"] || h/2;
+    var b = opts["b"] || 10;
     var transform = function(t, f) { return function(l, r) { return f(t(l), t(r)); }} ;
     var convert = opts["range"]
                     ? d3.scale.linear().domain([x, x + w]).range(opts["range"])
