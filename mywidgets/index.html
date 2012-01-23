@@ -5,30 +5,32 @@
 
 <head>
     <title>Range selector</title>
+
     <script type="text/javascript" src="../d3/d3.js"></script>
+    <script type="text/javascript" src="selector.js"></script>
 
     <style type="text/css">
-        .bar {
+
+        .diagram {
+            fill: none;
+        }
+
+        .area {
             stroke: blue;
-            fill: none;
-        }
-        .limit {
-            stroke: green;
-            fill: none;
-        }
-
-        .limit.selected {
-            fill: green;
-        }
-
-        .limit.moving {
-            fill: orange;
         }
 
         .selection {
-            fill: red;
-
+            stroke: green;
+            stroke-opacity: 0.3;
+            fill: green;
+            fill-opacity: 0.1;
         }
+
+        .limit {
+            stroke: none;
+            fill: green;
+        }
+
     </style>
 </head>
 <body>
@@ -44,53 +46,22 @@
                         .attr("width", x+w+h)
                         .attr("height", y+2*h);
 
-        var bar = diagram.append("rect")
-                         .attr("class", "bar")
-                         .attr("x", x+h/2)
-                         .attr("y", y)
-                         .attr("width", w)
-                         .attr("height", h);
+        var area = diagram.append("rect")
+                          .attr("class", "area")
+                          .attr("x", x)
+                          .attr("y", y)
+                          .attr("width", w)
+                          .attr("height", h);
 
-        function add_limit(parent, id, x, y, h, callback) {
-
-            function make_points(x, y) {
-                return [x,y, x-h/2,y+h, x+h/2,y+h].join(" ");
+        var selector = make_selector(diagram, x, y, w, {
+            b: 10,
+            callback: function (l, r) {
+                d3.select("#range").text([l,r].join());
             }
-
-            return (function() {
-
-                        var cx = x,
-                            cy = y;
-
-                        function move() {
-                            cx += d3.event.dx;
-                            d3.select(this)
-                              .attr("points", make_points(cx, y));
-                            if (callback) {
-                                callback(cx-x);
-                            }
-                        }
-
-                        return parent.append("polygon")
-                                     .attr("id", id)
-                                     .attr("class", "limit")
-                                     .attr("points", make_points(x, y))
-                                     .attr("pointer-events", "all")
-                                     .call(d3.behavior.drag().on("drag", move));
-            })();
-        }
-
-
-        var left = add_limit(diagram, "left", x+h/2, y+h, h, function (x) {
-            d3.select("#xl").text(x);
-        });
-        var right = add_limit(diagram, "right", h+h/2+w, y+h, h, function (x) {
-            d3.select("#xr").text(x);
         });
 
     </script>
 
-    <div id="xl"></div>
-    <div id="xr"></div>
+    <div id="range"></div>
 </body>
 </html>

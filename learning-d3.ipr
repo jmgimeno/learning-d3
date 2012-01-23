@@ -23,6 +23,7 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
   <component name="IdProvider" IDEtalkID="1A285390D4B880B85A4F63789815641E" />
   <component name="JavaScriptLibraryMappings">
+    <file url="file://$PROJECT_DIR$/mywidgets/index.html" libraries="{d3}" />
     <file url="file://$PROJECT_DIR$/sundstrom/life/life.js" libraries="{d3}" />
     <file url="file://$PROJECT_DIR$/tulp/circles.html" libraries="{d3}" />
     <file url="file://$PROJECT_DIR$/tulp/life.html" libraries="{d3}" />
