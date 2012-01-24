@@ -30,11 +30,20 @@
             fill: green;
         }
 
-        .axis {
+        .axis, .xtick, .xlabel, .ytick, .ylabel {
             stroke: black;
         }
 
-        .plot {
+        .xlabel {
+            font-family: Arial;
+            font-size: 9pt;
+        }
+
+        .focus .plot {
+            stroke: red;
+        }
+
+        .context .plot {
             stroke: blue;
             stroke-width: 2;
         }
@@ -60,20 +69,21 @@
             return str;
         }
 
-        var fx = 10, fy = 30, fw = 500, fh = 400;
+        var fx = 20, fy = 30, fw = 500, fh = 400;
         var cx = fx, cy = fy+fh, cw = fw, ch = 0.2*fh;
-        var sx = fx + 20, sy = cy + 20, sw = cw-40, sh = ch-20;
+        var sx = fx + 20, sy = cy + 5, sw = cw-40, sh = ch-5;
 
         var diagram = d3.select("#selector").append("svg")
                         .attr("class", "diagram")
-                        .attr("width", fw)
-                        .attr("height", fh + ch + 40);
+                        .attr("width", fx+fw)
+                        .attr("height", fy+fh+ch+10);
 
         var data = create_time_series(1);
 
         var focus = make_focus(diagram, fx, fy, fw, fh, {});
 
         var context = make_context(diagram, cx, cy, cw, ch, {
+            top: 5,
             data: data
         });
 

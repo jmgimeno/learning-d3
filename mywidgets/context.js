@@ -41,5 +41,49 @@ function make_context(parent, x, y, w, h, opts) {
                     .attr("class", "plot")
                     .attr("d", line(data));
 
+    function date_format(d) {
+        return d3.time.format("%Y")(new Date(d));
+    }
+
+    function update_xticks(xscale) {
+        var xticks = group.selectAll(".xtick")
+            .data(xscale.ticks(5));
+
+        xticks.enter().append("line")
+            .attr("class", "xtick")
+            .attr("x1", xscale)
+            .attr("y1", 0)
+            .attr("x2", xscale)
+            .attr("y2", -5);
+
+        xticks.attr("x1", xscale)
+            .attr("x2", xscale);
+
+        xticks.exit().remove();
+    }
+
+    function update_xlabels(xscale) {
+        var xlabels = group.selectAll(".xlabel")
+            .data(xscale.ticks(5));
+
+        xlabels.enter().append("text")
+            .attr("class", "xlabel")
+            .text(date_format)
+            .attr("x", xscale)
+            .attr("y", 7)
+            .attr("text-anchor", "middle")
+            .attr("dominant-baseline", "text-before-edge")
+            .attr("transform", "scale(1, -1)");
+
+        xlabels.text(date_format)
+            .attr("x", xscale);
+
+        xlabels.exit().remove();
+
+    }
+
+    update_xticks(x_scale);
+    update_xlabels(x_scale);
+
     return group;
 }
