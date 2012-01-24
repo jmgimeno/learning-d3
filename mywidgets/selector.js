@@ -8,7 +8,7 @@ function make_selector(parent, x, y, w, h, opts) {
 
     var callback = transform(convert, opts["callback"] || function (l, r) {});
 
-    var group = parent.append("g");
+    var group = parent.append("g").attr("class", "selector");
 
     var selection = make_selection(group, x, y, w, h,
         function(l, r) {

@@ -5,16 +5,17 @@
     <title>Range selector</title>
 
     <script type="text/javascript" src="../d3/d3.js"></script>
+    <script type="text/javascript" src="../d3/d3.time.js"></script>
+
     <script type="text/javascript" src="selector.js"></script>
+    <script type="text/javascript" src="context.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="focus.js"></script>
 
     <style type="text/css">
 
         .diagram {
             fill: none;
-        }
-
-        .area {
-            stroke: blue;
         }
 
         .selection {
@@ -29,6 +30,14 @@
             fill: green;
         }
 
+        .axis {
+            stroke: black;
+        }
+
+        .plot {
+            stroke: blue;
+            stroke-width: 2;
+        }
     </style>
 </head>
 <body>
@@ -51,30 +60,36 @@
             return str;
         }
 
-        var x = 20,
-            y = 20,
-            h = 150,
-            w = 500;
+        var fx = 10, fy = 30, fw = 500, fh = 400;
+        var cx = fx, cy = fy+fh, cw = fw, ch = 0.2*fh;
+        var sx = fx + 20, sy = cy + 20, sw = cw-40, sh = ch-20;
 
         var diagram = d3.select("#selector").append("svg")
                         .attr("class", "diagram")
-                        .attr("width", 600)
-                        .attr("height", 200);
+                        .attr("width", fw)
+                        .attr("height", fh + ch + 40);
 
-        var area = diagram.append("rect")
-                          .attr("class", "area")
-                          .attr("x", x)
-                          .attr("y", y)
-                          .attr("width", w)
-                          .attr("height", h);
+        var data = create_time_series(1);
 
-        var selector = make_selector(diagram, x, y, w, h, {
+        var focus = make_focus(diagram, fx, fy, fw, fh, {});
+
+        var context = make_context(diagram, cx, cy, cw, ch, {
+            data: data
+        });
+
+        var selector = make_selector(diagram, sx, sy, sw, sh, {
             b: 10,
-            range: [0, 100],
+            range: d3.extent(data, function (d) { return d.x; }),
             callback: function (l, r) {
-                l = format(l, 3, 3);
-                r = format(r, 3, 3);
-                d3.select("#range").text(l + " " + r);
+
+                var focus_data = data.filter(function (d) {
+                    return l <= d.x && d.x <= r;
+                });
+
+                focus.update(focus_data);
+
+                var format = d3.time.format("%m-%Y");
+                d3.select("#range").text(format(new Date(l)) + " " + format(new Date(r)));
             }
         });
 
