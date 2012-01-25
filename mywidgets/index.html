@@ -7,10 +7,8 @@
     <script type="text/javascript" src="../d3/d3.js"></script>
     <script type="text/javascript" src="../d3/d3.time.js"></script>
 
-    <script type="text/javascript" src="selector.js"></script>
-    <script type="text/javascript" src="context.js"></script>
+    <script type="text/javascript" src="focus_context.js"></script>
     <script type="text/javascript" src="data.js"></script>
-    <script type="text/javascript" src="focus.js"></script>
 
     <style type="text/css">
 
@@ -45,65 +43,63 @@
 
         .context .plot {
             stroke: blue;
-            stroke-width: 2;
         }
     </style>
 </head>
 <body>
 
-    <ul>
-        <li>You can drag the triangles to modify the selection</li>
-        <li>You can drag the selected area if there's room</li>
-    </ul>
+<div id="selector"></div>
 
-    <div id="selector"></div>
-    <div id="range"></div>
+<ul>
+    <li><span id="min"></span></li>
+    <li><span id="max"></span></li>
+</ul>
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-        function format(num, digits, decimals) {
-            var str = num.toFixed(decimals);
-            while (str.length < digits+decimals+1) {
-                str = "0" + str;
+    var data = create_time_series(1);
+
+    focus_context({
+        parent: "#selector",
+        id: "diagram",
+        x: 40,
+        y: 30,
+        width: 500,
+        height: 400,
+        data: data,
+        gap: 10,
+        limit: 10,
+        left: 25,
+        right: 10,
+        top: 5,
+        callback: function (l, r) {
+            var format = d3.time.format("%d-%m-%Y");
+            d3.select("#min").text(format(new Date(l)));
+            d3.select("#max").text(format(new Date(r)));
+        },
+        foptions: {
+            klass: "focus",
+            xaxis: {
+                label: function (d) { return d3.time.format("%m-%y")(new Date(d)); }
+            },
+            yaxis: {
+                label: String
             }
-            return str;
+        },
+        coptions: {
+            klass: "context",
+            ratio: 0.2,
+            xaxis: {
+                label: function (d) { return d3.time.format("%Y")(new Date(d)); }
+            }
+        },
+        soptions: {
+            parent: "#diagram",
+            range: d3.extent(data, getter("x"))
         }
+    });
 
-        var fx = 20, fy = 30, fw = 500, fh = 400;
-        var cx = fx, cy = fy+fh, cw = fw, ch = 0.2*fh;
-        var sx = fx + 20, sy = cy + 5, sw = cw-40, sh = ch-5;
-
-        var diagram = d3.select("#selector").append("svg")
-                        .attr("class", "diagram")
-                        .attr("width", fx+fw)
-                        .attr("height", fy+fh+ch+10);
-
-        var data = create_time_series(1);
-
-        var focus = make_focus(diagram, fx, fy, fw, fh, {});
-
-        var context = make_context(diagram, cx, cy, cw, ch, {
-            top: 5,
-            data: data
-        });
-
-        var selector = make_selector(diagram, sx, sy, sw, sh, {
-            b: 10,
-            range: d3.extent(data, function (d) { return d.x; }),
-            callback: function (l, r) {
-
-                var focus_data = data.filter(function (d) {
-                    return l <= d.x && d.x <= r;
-                });
-
-                focus.update(focus_data);
-
-                var format = d3.time.format("%m-%Y");
-                d3.select("#range").text(format(new Date(l)) + " " + format(new Date(r)));
-            }
-        });
-
-    </script>
+</script>
 
 </body>
 </html>
