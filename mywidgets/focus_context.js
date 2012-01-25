@@ -1,3 +1,5 @@
+// Inspired by https://gist.github.com/917479
+
 function focus_context (options) {
 
     options = options || {};
@@ -174,7 +176,7 @@ function make_plot(options) {
             .attr("class", "ylabel")
             .text(ylabel)
             .attr("x", -(yticklength+2))
-            .attr("y", function (d) { return -yscale(d); })
+            .attr("y", negate(yscale))
             .attr("text-anchor", "end")
             .attr("dominant-baseline", "central")
             .attr("transform", "scale(1, -1)");
@@ -188,16 +190,16 @@ function make_plot(options) {
     function update(data) {
 
         var x_scale = d3.scale.linear()
-            .domain(d3.extent(data, function (d) { return d.x; }))
+            .domain(d3.extent(data, getter("x")))
             .range([0, width - left - right]);
 
         var y_scale = d3.scale.linear()
-            .domain(d3.extent(data, function (d) { return d.y; }))
+            .domain(d3.extent(data, getter("y")))
             .range([0, height - top - bottom]);
 
         var line = d3.svg.line()
-            .x(function (d) { return x_scale(d.x); })
-            .y(function (d) { return y_scale(d.y); });
+            .x(distribute(getter("x"), x_scale))
+            .y(distribute(getter("y"), y_scale));
 
         var path = plot.select("path")
             .attr("d", line(data));
