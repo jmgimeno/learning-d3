@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Focus + Context (via brushing)</title>
+    
+    <script type="text/javascript" src="../d3/d3.js"></script>
+    <script type="text/javascript" src="../d3/d3.time.js"></script>
+
+    <script type="text/javascript" src="data.js"></script>
+    
+    <style type="text/css">
+
+        svg {
+            font: 10px sans-serif;
+        }
+
+        path.focus {
+            stroke: red;
+            fill: none;
+        }
+
+        path.context {
+            stroke: blue;
+            fill: none;
+        }
+
+        .axis path, .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .brush .extent {
+            stroke: green;
+            stroke-opacity: 0.3;
+            fill: green;
+            fill-opacity: 0.1;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div id="diagram"></div>
+
+    <ul>
+        <li><span id="min"></span></li>
+        <li><span id="max"></span></li>
+    </ul>
+
+    <script type="text/javascript">
+
+        var data = create_time_series(1);
+
+        var margin = {top: 10, right: 10, bottom: 100, left: 40},
+            margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom,
+            height2 = 500 - margin2.top - margin2.bottom;
+
+
+        var x  = d3.time.scale()
+                    .domain(d3.extent(data.map(function (d) {return d.x;})))
+                    .range([0, width]),
+            x2 = d3.time.scale()
+                    .domain(x.domain())
+                    .range([0, width]),
+            y  = d3.scale.linear()
+                    .domain(d3.extent(data.map(function (d) {return d.y;})))
+                    .range([height, 0]),
+            y2 = d3.scale.linear()
+                    .domain(y.domain())
+                    .range([height2, 0]);
+
+        var xAxis  = d3.svg.axis().scale(x).orient("bottom")
+                           .tickFormat(d3.time.format("%m-%y")),
+            xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+            yAxis  = d3.svg.axis().scale(y).orient("left");
+
+        var brush = d3.svg.brush().x(x2).on("brush", display);
+
+        var line = d3.svg.line()
+                         .x(function (d) {return x(d.x);})
+                         .y(function (d) {return y(d.y);});
+
+        var line2 = d3.svg.line()
+                          .x(function (d) {return x2(d.x);})
+                          .y(function (d) {return y2(d.y);});
+
+        var svg = d3.select("#diagram").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+
+        var focus = svg.append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var context = svg.append("g")
+                    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+        focus.append("path")
+                .attr("class", "focus")
+                .data([data])
+                .attr("d", line)
+
+        focus.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        focus.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+
+        context.append("path")
+                .attr("class", "context")
+                .data([data])
+                .attr("d", line2)
+
+        context.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height2 + ")")
+                .call(xAxis2);
+
+        context.append("g")
+                .attr("class", "x brush")
+                .call(brush)
+                .selectAll("rect")
+                .attr("y", 0)
+                .attr("height", height2 + 0);
+
+        display_focus_range(x.domain());
+
+        function display() {
+            var x_domain = brush.empty() ? x2.domain() : brush.extent(),
+                x_min = x_domain[0],
+                x_max = x_domain[1];
+
+            var new_data = data.filter(function (d) {
+                return x_min <= d.x && d.x <= x_max;
+            });
+
+            x.domain(x_domain);
+            y.domain(d3.extent(new_data.map(function (d) {return d.y;})));
+
+            focus.select("path").data([new_data]).attr("d", line);
+            focus.select(".x.axis").call(xAxis);
+            focus.select(".y.axis").call(yAxis);
+
+            display_focus_range(x_domain);
+        }
+
+        function display_focus_range(range) {
+            var format = d3.time.format("%d-%m-%Y");
+            d3.select("#min").text(format(range[0]));
+            d3.select("#max").text(format(range[1]));
+
+        }
+
+    </script>
+</body>
+</html>
