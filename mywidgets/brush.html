@@ -36,7 +36,7 @@
             fill: green;
             fill-opacity: 0.1;
         }
-        
+
     </style>
 </head>
 <body>
@@ -50,7 +50,8 @@
 
     <script type="text/javascript">
 
-        var data = create_time_series(1);
+        var data = create_time_series(1),
+            x_data = data.map(function (d) { return d.x; });
 
         var margin = {top: 10, right: 10, bottom: 100, left: 40},
             margin2 = {top: 430, right: 10, bottom: 20, left: 40},
@@ -58,9 +59,8 @@
             height = 500 - margin.top - margin.bottom,
             height2 = 500 - margin2.top - margin2.bottom;
 
-
         var x  = d3.time.scale()
-                    .domain(d3.extent(data.map(function (d) {return d.x;})))
+                    .domain(d3.extent(x_data))
                     .range([0, width]),
             x2 = d3.time.scale()
                     .domain(x.domain())
@@ -135,9 +135,9 @@
                 x_min = x_domain[0],
                 x_max = x_domain[1];
 
-            var new_data = data.filter(function (d) {
-                return x_min <= d.x && d.x <= x_max;
-            });
+            var left = d3.bisectLeft(x_data, x_min),
+                right = d3.bisectRight(x_data, x_max, left),
+                new_data = data.slice(left, right);
 
             x.domain(x_domain);
             y.domain(d3.extent(new_data.map(function (d) {return d.y;})));
