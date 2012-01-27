@@ -77,7 +77,7 @@
             xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
             yAxis  = d3.svg.axis().scale(y).orient("left");
 
-        var brush = d3.svg.brush().x(x2).on("brush", display);
+        var brush = d3.svg.brush().x(x2).on("brush", display).extent(x2.domain());
 
         var line = d3.svg.line()
                          .x(function (d) {return x(d.x);})
@@ -129,6 +129,8 @@
                 .attr("height", height2 + 0);
 
         display_focus_range(x.domain());
+
+        context.select(".x.brush .background").style("pointer-events", "none");
 
         function display() {
             var x_domain = brush.empty() ? x2.domain() : brush.extent(),
