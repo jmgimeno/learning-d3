@@ -26,7 +26,7 @@
             shape-rendering: crispEdges;
         }
 
-        .brush .extent {
+        rect.mover {
             stroke: lightSteelBlue;
             stroke-opacity: 0.3;
             fill: lightSteelBlue;
@@ -38,8 +38,6 @@
 <body>
 
     <div id="diagram"></div>
-    
-    <div id="log"></div>
 
     <script type="text/javascript">
 
@@ -48,10 +46,10 @@
             data   = labels.map(function (label) { return { label: label, value: valuef()}; });
 
         var margin =  {top: 20, right: 10, bottom: 20, left: 40},
-            brushHeight = 20
+            selectorHeight = 20
             width = 400 - margin.left - margin.right,
-            height = 300 - margin.top - margin.bottom - brushHeight,
-            barWidth = 60;
+            height = 300 - margin.top - margin.bottom - selectorHeight,
+            barWidth = 50;
 
         var numBars = Math.round(width/barWidth);
 
@@ -67,7 +65,7 @@
 
         var svg = d3.select("#diagram").append("svg")
                     .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom + brushHeight);
+                    .attr("height", height + margin.top + margin.bottom + selectorHeight);
 
         var diagram = svg.append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -84,7 +82,7 @@
         var bars = diagram.append("g");
 
         bars.selectAll("rect")
-            .data(data.slice(0,numBars))
+            .data(data.slice(0, numBars))
             .enter().append("rect")
             .attr("class", "bar")
             .attr("x", function (d) { return x(d.label); })
@@ -94,35 +92,35 @@
 
         var displayed = d3.scale.linear().domain([0, data.length]).range([0, width]);
 
-        var brush = d3.svg.brush()
-                        .x(displayed)
-                        .extent([0, numBars])
-                        .on("brush", display);
-
-        diagram.append("g")
+        diagram.append("rect")
             .attr("transform", "translate(0, " + (height + margin.bottom) + ")")
-            .attr("class", "x brush")
-            .call(brush)
-            .selectAll("rect")
-            .attr("height", brushHeight);
-
-        diagram.select(".x.brush .background").style("pointer-events", "none");
-        diagram.select(".x.brush .resize.e").style("pointer-events", "none");
-        diagram.select(".x.brush .resize.w").style("pointer-events", "none");
+            .attr("class", "mover")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("height", selectorHeight)
+            .attr("width", displayed(numBars))
+            .attr("pointer-events", "all")
+            .attr("cursor", "ew-resize")
+            .call(d3.behavior.drag().on("drag", display));
 
         function display () {
-            var first = brush.extent()[0],
-                index = Math.round(first),
-                new_data = data.slice(index, index + numBars);
+            var newx = parseInt(d3.select(this).attr("x")) + d3.event.dx,
+                w = parseInt(d3.select(this).attr("width")),
+                first, new_data;
 
-            d3.select("#log").text(new_data[0].label);
+            if ( 0 <= newx && newx + w <= width ) {
 
-            x.domain(new_data.map(function (d) { return d.label; }));
-            diagram.select(".x.axis").call(xAxis);
+                d3.select(this).attr("x", newx);
 
-            bars.selectAll("rect").remove();
+                first  = Math.round(displayed.invert(newx));
+                new_data = data.slice(first, first + numBars);
 
-            bars.selectAll("rect")
+                x.domain(new_data.map(function (d) { return d.label; }));
+                diagram.select(".x.axis").call(xAxis);
+
+                bars.selectAll("rect").remove();
+
+                bars.selectAll("rect")
                     .data(new_data)
                     .enter().append("rect")
                     .attr("class", "bar")
@@ -130,7 +128,7 @@
                     .attr("y", function (d) { return y(d.value); })
                     .attr("width", x.rangeBand())
                     .attr("height", function (d) { return height - y(d.value); });
-
+            }
         };
     </script>
 </body>
