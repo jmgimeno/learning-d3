@@ -4,9 +4,6 @@
     <title>Moving Histogram</title>
     
     <script type="text/javascript" src="../d3/d3.js"></script>
-    <script type="text/javascript" src="../d3/d3.time.js"></script>
-
-    <script type="text/javascript" src="data.js"></script>
     
     <style type="text/css">
 
@@ -38,10 +35,12 @@
 <body>
 
     <div id="diagram"></div>
+    
+    <div id="log"></div>
 
     <script type="text/javascript">
 
-        var labels = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"],
+        var labels = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
             valuef = function () { return Math.random() * 40 + 30; },
             data   = labels.map(function (label) { return { label: label, value: valuef()}; });
 
@@ -49,19 +48,19 @@
             selectorHeight = 20
             width = 400 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom - selectorHeight,
-            barWidth = 50;
+            barWidth = 45;
 
         var numBars = Math.round(width/barWidth);
 
-        var x = d3.scale.ordinal()
+        var xscale = d3.scale.ordinal()
                 .domain(data.slice(0,numBars).map(function (d) { return d.label; }))
-                .rangeBands([0, numBars * barWidth]),
-            y = d3.scale.linear()
+                .rangeBands([0, width]),
+            yscale = d3.scale.linear()
                 .domain([0, 70])
                 .range([height, 0]);
 
-        var xAxis  = d3.svg.axis().scale(x).orient("bottom"),
-            yAxis  = d3.svg.axis().scale(y).orient("left");
+        var xAxis  = d3.svg.axis().scale(xscale).orient("bottom"),
+            yAxis  = d3.svg.axis().scale(yscale).orient("left");
 
         var svg = d3.select("#diagram").append("svg")
                     .attr("width", width + margin.left + margin.right)
@@ -82,15 +81,17 @@
         var bars = diagram.append("g");
 
         bars.selectAll("rect")
-            .data(data.slice(0, numBars))
+            .data(data.slice(0, numBars), function (d) {return d.label; })
             .enter().append("rect")
             .attr("class", "bar")
-            .attr("x", function (d) { return x(d.label); })
-            .attr("y", function (d) { return y(d.value); })
-            .attr("width", x.rangeBand())
-            .attr("height", function (d) { return height - y(d.value); });
+            .attr("x", function (d) { return xscale(d.label); })
+            .attr("y", function (d) { return yscale(d.value); })
+            .attr("width", xscale.rangeBand())
+            .attr("height", function (d) { return height - yscale(d.value); });
 
-        var displayed = d3.scale.linear().domain([0, data.length]).range([0, width]);
+        var displayed = d3.scale.quantize()
+            .domain([0, width])
+            .range(d3.range(data.length));
 
         diagram.append("rect")
             .attr("transform", "translate(0, " + (height + margin.bottom) + ")")
@@ -98,37 +99,46 @@
             .attr("x", 0)
             .attr("y", 0)
             .attr("height", selectorHeight)
-            .attr("width", displayed(numBars))
+            .attr("width", Math.round(parseFloat(numBars * width)/data.length))
             .attr("pointer-events", "all")
             .attr("cursor", "ew-resize")
             .call(d3.behavior.drag().on("drag", display));
 
+        d3.select("#log").text(xscale.rangeBand());
+
         function display () {
-            var newx = parseInt(d3.select(this).attr("x")) + d3.event.dx,
+            var x = parseInt(d3.select(this).attr("x")),
+                nx = x + d3.event.dx,
                 w = parseInt(d3.select(this).attr("width")),
-                first, new_data;
+                f, nf, new_data, rects;
 
-            if ( 0 <= newx && newx + w <= width ) {
+            if ( nx < 0 || nx + w > width ) return;
 
-                d3.select(this).attr("x", newx);
+            d3.select(this).attr("x", nx);
 
-                first  = Math.round(displayed.invert(newx));
-                new_data = data.slice(first, first + numBars);
+            f = displayed(x);
+            nf = displayed(nx);
 
-                x.domain(new_data.map(function (d) { return d.label; }));
-                diagram.select(".x.axis").call(xAxis);
+            if ( f === nf ) return;
 
-                bars.selectAll("rect").remove();
+            new_data = data.slice(nf, nf + numBars);
 
-                bars.selectAll("rect")
-                    .data(new_data)
-                    .enter().append("rect")
-                    .attr("class", "bar")
-                    .attr("x", function (d) { return x(d.label); })
-                    .attr("y", function (d) { return y(d.value); })
-                    .attr("width", x.rangeBand())
-                    .attr("height", function (d) { return height - y(d.value); });
-            }
+            xscale.domain(new_data.map(function (d) { return d.label; }));
+            diagram.select(".x.axis").call(xAxis);
+
+            rects = bars.selectAll("rect")
+                .data(new_data, function (d) {return d.label; });
+
+            rects.attr("x", function (d) { return xscale(d.label); });
+
+            rects.enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function (d) { return xscale(d.label); })
+                .attr("y", function (d) { return yscale(d.value); })
+                .attr("width", xscale.rangeBand())
+                .attr("height", function (d) { return height - yscale(d.value); });
+
+            rects.exit().remove();
         };
     </script>
 </body>
