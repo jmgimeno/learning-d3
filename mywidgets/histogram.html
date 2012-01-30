@@ -36,8 +36,6 @@
 
     <div id="diagram"></div>
     
-    <div id="log"></div>
-
     <script type="text/javascript">
 
         var labels = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"],
@@ -103,8 +101,6 @@
             .attr("pointer-events", "all")
             .attr("cursor", "ew-resize")
             .call(d3.behavior.drag().on("drag", display));
-
-        d3.select("#log").text(xscale.rangeBand());
 
         function display () {
             var x = parseInt(d3.select(this).attr("x")),
