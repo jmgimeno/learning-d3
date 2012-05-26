@@ -54,7 +54,7 @@
                 .domain(data.slice(0,numBars).map(function (d) { return d.label; }))
                 .rangeBands([0, width]),
             yscale = d3.scale.linear()
-                .domain([0, 70])
+                .domain([0, d3.max(data, function (d) { return d.value; })])
                 .range([height, 0]);
 
         var xAxis  = d3.svg.axis().scale(xscale).orient("bottom"),
