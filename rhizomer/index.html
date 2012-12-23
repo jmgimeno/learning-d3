@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Column graph for rhizomer</title>
-    <script src="../d3/d3.v2.js" type="text/javascript"></script>
+    <script src="../d3/d3.v3.js" type="text/javascript"></script>
     <script src="rhizomerResults.js" type="text/javascript"></script>
 </head>
 <body>
@@ -48,16 +49,13 @@
 //            rhizomerTranslator = oneTranslator;
 
         var rhizomerData = twoVariables10Values,
-                rhizomerTranslator = twoTranslator;
+            rhizomerTranslator = twoTranslator;
 
         var data = rhizomer2d3(rhizomerData, rhizomerTranslator);
 
-        var w = 1000, h = 400, groupPadding = 0.1;
+        var w = 1000, h = 400, groupPadding = 0.05;
 
         var svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
-
-        var numProps  = values(data).length;
-        var numValues = data.length;
 
         var yScale = d3.scale.linear()
                        .domain([0, maxForProps(data, values(rhizomerTranslator))])
@@ -66,6 +64,14 @@
         var gScale = d3.scale.ordinal()
                        .domain(d3.range(data.length))
                        .rangeBands([0, w], groupPadding);
+
+        var properties = values(rhizomerTranslator);
+
+        var xScale = d3.scale.ordinal()
+                .domain(d3.range(properties.length))
+                .rangeBands([0, gScale.rangeBand()]);
+
+        var barColors = d3.scale.category10();
 
         var mkBars = function(group, gWidth, yScale, props) {
             var obj = this.datum();
@@ -96,43 +102,66 @@
         }
 
         svg.selectAll(".group")
-                .data(data)
-                .enter()
-                .append("g")
-                .attr("class", "group")
-                .attr("transform", function(d, i) {
-                    return "translate(" + gScale(i) + ", " + h + ")";
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("class", "group")
+            .attr("transform", function(d, i) {
+                return "translate(" + gScale(i) + ", " + h + ")";
+            })
+            .selectAll("rect")
+            .data(function(d) {
+                return properties.map(function(p) {
+                    return d[p];
                 })
-                .each(function(d, i) {
-                    var gWidth = gScale.rangeBand();
-                    var props = values(rhizomerTranslator);
-                    var obj = this.__data__;
-                    var vals = props.map(function(p) {
-                        return obj[p];
-                    });
-                    var xScale = d3.scale.ordinal()
-                            .domain(d3.range(vals.length))
-                            .rangeBands([0, gWidth]);
-                    var barColors = d3.scale.category10();
-                    d3.select(this)
-                            .selectAll("rect")
-                            .data(vals)
-                            .enter()
-                            .append("rect")
-                            .attr("x", function(d, i) {
-                                return xScale(i);
-                            })
-                            .attr("y", function(d, i) {
-                                return -yScale(d);
-                            })
-                            .attr("width", xScale.rangeBand())
-                            .attr("height", function(d, i) {
-                                return yScale(d);
-                            })
-                            .attr("fill", function(d, i) {
-                                return barColors(i);
-                            });
-                });
+            })
+            .enter()
+            .append("rect")
+            .attr("x", function(d, i) {
+                return xScale(i);
+            })
+            .attr("y", function(d, i) {
+                return -yScale(d);
+            })
+            .attr("width", xScale.rangeBand())
+            .attr("height", function(d, i) {
+                return yScale(d);
+            })
+            .attr("fill", function(d, i) {
+                return barColors(i);
+            });
+
+        //        svg.selectAll(".group")
+//                .data(data)
+//                .enter()
+//                .append("g")
+//                .attr("class", "group")
+//                .attr("transform", function(d, i) {
+//                    return "translate(" + gScale(i) + ", " + h + ")";
+//                })
+//                .each(function(d, i) {
+//                    var vals = properties.map(function(p) {
+//                        return d[p];
+//                    });
+//                    d3.select(this)
+//                            .selectAll("rect")
+//                            .data(vals)
+//                            .enter()
+//                            .append("rect")
+//                            .attr("x", function(d, i) {
+//                                return xScale(i);
+//                            })
+//                            .attr("y", function(d, i) {
+//                                return -yScale(d);
+//                            })
+//                            .attr("width", xScale.rangeBand())
+//                            .attr("height", function(d, i) {
+//                                return yScale(d);
+//                            })
+//                            .attr("fill", function(d, i) {
+//                                return barColors(i);
+//                            });
+//                });
     </script>
 </body>
 </html>
