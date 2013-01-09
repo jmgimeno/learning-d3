@@ -53,16 +53,23 @@
 
         var data = rhizomer2d3(rhizomerData, rhizomerTranslator);
 
-        var w = 1000, h = 400, groupPadding = 0.05;
+        var w = 1000, h = 400, groupPadding = 0.05, gScaleHeight = 25, yScaleWidth = 50;
 
-        var svg = d3.select("body").append("svg").attr("width", w).attr("height", h);
+        var svg = d3.select("body")
+                    .append("svg")
+                    .attr("width", w + yScaleWidth)
+                    .attr("height", h + gScaleHeight);
 
         var yScale = d3.scale.linear()
                        .domain([0, maxForProps(data, values(rhizomerTranslator))])
-                       .range([0, h]);
+                       .range([h, 0]);
+
+        var labels = data.map(function(d) {
+            return d.label;
+        });
 
         var gScale = d3.scale.ordinal()
-                       .domain(d3.range(data.length))
+                       .domain(labels)
                        .rangeBands([0, w], groupPadding);
 
         var properties = values(rhizomerTranslator);
@@ -73,46 +80,26 @@
 
         var barColors = d3.scale.category10();
 
-        var mkBars = function(group, gWidth, yScale, props) {
-            var obj = this.datum();
-            var values = props.map(function(p) {
-                return obj[p];
-            });
-            var xScale = d3.scale.ordinal()
-                    .domain(d3.range(values.length))
-                    .rangeBands([0, gWidth]);
-            var barColors = d3.scale.category10();
-            group.selectAll("rect")
-                    .data(values)
-                    .enter()
-                    .append("rect")
-                    .attr("x", function(d, i) {
-                        return xScale(i);
-                    })
-                    .attr("y", function(d, i) {
-                        return -yScale(d);
-                    })
-                    .attr("width", xScale.rangeBand())
-                    .attr("height", function(d, i) {
-                        return yScale(d);
-                    })
-                    .attr("fill", function(d, i) {
-                        return barColors(i);
-                    })
-        }
+        var gAxis = d3.svg.axis().scale(gScale).orient("bottom");
 
-        svg.selectAll(".group")
+        var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(10);
+
+        svg.append("g").attr("transform", "translate(" + yScaleWidth + ",0)")
+            .selectAll(".group")
             .data(data)
             .enter()
             .append("g")
             .attr("class", "group")
             .attr("transform", function(d, i) {
-                return "translate(" + gScale(i) + ", " + h + ")";
+                return "translate(" + gScale(d.label) + ", 0)";
             })
             .selectAll("rect")
             .data(function(d) {
                 return properties.map(function(p) {
-                    return d[p];
+                    return { label:    d.label,
+                             property: p,
+                             value:    d[p]
+                    };
                 })
             })
             .enter()
@@ -121,47 +108,23 @@
                 return xScale(i);
             })
             .attr("y", function(d, i) {
-                return -yScale(d);
+                return yScale(d.value);
             })
             .attr("width", xScale.rangeBand())
             .attr("height", function(d, i) {
-                return yScale(d);
+                return h - yScale(d.value);
             })
             .attr("fill", function(d, i) {
                 return barColors(i);
+            })
+            .append("title")
+            .text(function(d, i) {
+                return d.label + '\n' + d.property + ' ' + d.value;
             });
 
-        //        svg.selectAll(".group")
-//                .data(data)
-//                .enter()
-//                .append("g")
-//                .attr("class", "group")
-//                .attr("transform", function(d, i) {
-//                    return "translate(" + gScale(i) + ", " + h + ")";
-//                })
-//                .each(function(d, i) {
-//                    var vals = properties.map(function(p) {
-//                        return d[p];
-//                    });
-//                    d3.select(this)
-//                            .selectAll("rect")
-//                            .data(vals)
-//                            .enter()
-//                            .append("rect")
-//                            .attr("x", function(d, i) {
-//                                return xScale(i);
-//                            })
-//                            .attr("y", function(d, i) {
-//                                return -yScale(d);
-//                            })
-//                            .attr("width", xScale.rangeBand())
-//                            .attr("height", function(d, i) {
-//                                return yScale(d);
-//                            })
-//                            .attr("fill", function(d, i) {
-//                                return barColors(i);
-//                            });
-//                });
+        svg.append("g").attr("transform", "translate(" + yScaleWidth + " ," + h + ")").call(gAxis);
+        svg.append("g").attr("transform", "translate(" + yScaleWidth + " , 0)").call(yAxis);
+
     </script>
 </body>
 </html>
